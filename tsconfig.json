@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "ignoreDeprecations": "6.0",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "@playwright/test"],
+    "lib": ["DOM", "ES2020"]
+  },
+  "include": ["tests", "playwright.config.ts", "pages"],
+  "exclude": ["node_modules"]
+}

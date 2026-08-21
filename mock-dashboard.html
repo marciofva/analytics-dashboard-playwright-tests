@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics Dashboard</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 32px;
+        background: #f3f4f6;
+        color: #111827;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      label {
+        font-weight: 600;
+      }
+      select,
+      button {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+      }
+      button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      th, td {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 16px;
+        text-align: left;
+      }
+      th {
+        background: #eef2ff;
+      }
+      tbody tr[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Analytics Dashboard</h1>
+    <div class="toolbar">
+      <label for="customer-filter">Customer</label>
+      <select id="customer-filter" aria-label="Customer filter">
+        <option value="all">All customers</option>
+        <option value="acme">Acme Corp</option>
+        <option value="globex">Globex</option>
+        <option value="initech">Initech</option>
+      </select>
+      <button id="clear-filter" type="button">Clear filter</button>
+    </div>
+
+    <table id="analytics-table" aria-label="Customer table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Customer</th>
+          <th>Warehouse</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-customer="acme">
+          <td>ORD-1001</td>
+          <td>Acme Corp</td>
+          <td>WH-01</td>
+          <td>CREATED</td>
+        </tr>
+        <tr data-customer="acme">
+          <td>ORD-1002</td>
+          <td>Acme Corp</td>
+          <td>WH-02</td>
+          <td>IN_PROGRESS</td>
+        </tr>
+        <tr data-customer="globex">
+          <td>ORD-2001</td>
+          <td>Globex</td>
+          <td>WH-03</td>
+          <td>COMPLETED</td>
+        </tr>
+        <tr data-customer="initech">
+          <td>ORD-3001</td>
+          <td>Initech</td>
+          <td>WH-04</td>
+          <td>FAILED</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <script>
+      const customerFilter = document.getElementById('customer-filter');
+      const clearFilterButton = document.getElementById('clear-filter');
+      const rows = Array.from(document.querySelectorAll('#analytics-table tbody tr'));
+
+      function applyFilter() {
+        const selected = customerFilter.value;
+        rows.forEach((row) => {
+          const matches = selected === 'all' || row.dataset.customer === selected;
+          row.hidden = !matches;
+        });
+      }
+
+      customerFilter.addEventListener('change', applyFilter);
+      clearFilterButton.addEventListener('click', () => {
+        customerFilter.value = 'all';
+        applyFilter();
+      });
+
+      applyFilter();
+    </script>
+  </body>
+</html>
