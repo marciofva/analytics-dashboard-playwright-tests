@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { SearchPage } from '../pages/search.page';
-import { acmeCustomerRecords } from '../fixtures/acme-customer-records';
+import {
+    customerFilterScenarios,
+    globexCustomerRecords,
+} from '../fixtures/customer-filter-scenarios';
 import { CustomerFilter } from '../types/customer';
 
 test.describe('Analytics dashboard customer filter', { tag: '@regression' }, () => {
@@ -11,6 +14,7 @@ test.describe('Analytics dashboard customer filter', { tag: '@regression' }, () 
     test('clears a customer filter and restores the default table', async ({ page }) => {
         const searchPage = new SearchPage(page);
         const defaultRows = await searchPage.getDataRows().allTextContents();
+        const expectedCustomerName = globexCustomerRecords[0].customer;
 
         await expect(searchPage.customerFilter).toHaveValue(CustomerFilter.ALL);
         expect(defaultRows.length).toBeGreaterThan(1);
@@ -20,7 +24,7 @@ test.describe('Analytics dashboard customer filter', { tag: '@regression' }, () 
         const filteredRows = searchPage.getDataRows();
         await expect(searchPage.customerFilter).toHaveValue(CustomerFilter.GLOBEX);
         await expect(filteredRows).toHaveCount(1);
-        await expect(filteredRows).toContainText('Globex');
+        await expect(filteredRows).toContainText(expectedCustomerName);
 
         await searchPage.clearCustomerFilter();
 
@@ -29,20 +33,25 @@ test.describe('Analytics dashboard customer filter', { tag: '@regression' }, () 
         await expect(searchPage.getDataRows()).toHaveText(defaultRows);
     });
 
-    test('filters the table for Acme Corp', async ({ page }) => {
+    test('filters the table for every customer type', async ({ page }) => {
         const searchPage = new SearchPage(page);
 
-        await searchPage.selectCustomer(CustomerFilter.ACME);
+        for (const scenario of customerFilterScenarios) {
+            await searchPage.selectCustomer(scenario.filter);
 
-        const rows = searchPage.getDataRows();
-        await expect(rows).toHaveCount(acmeCustomerRecords.length);
+            const rows = searchPage.getDataRows();
+            await expect(searchPage.customerFilter).toHaveValue(scenario.filter);
+            await expect(rows).toHaveCount(scenario.records.length);
 
-        for (const [index, expectedRecord] of acmeCustomerRecords.entries()) {
-            const recordRow = rows.nth(index);
-            await expect(recordRow).toContainText(expectedRecord.order);
-            await expect(recordRow).toContainText(expectedRecord.customer);
-            await expect(recordRow).toContainText(expectedRecord.warehouse);
-            await expect(recordRow).toContainText(expectedRecord.status);
+            for (const [index, expectedRecord] of scenario.records.entries()) {
+                const recordCells = rows.nth(index).locator('td');
+                await expect(recordCells).toHaveText([
+                    expectedRecord.order,
+                    expectedRecord.customer,
+                    expectedRecord.warehouse,
+                    expectedRecord.status,
+                ]);
+            }
         }
     });
 });
